@@ -36,7 +36,7 @@
 <body>
   <header>
     <h1>FLUX.1 Krea Dev Demo</h1>
-    <p>Simple HTML demo using a Vercel proxy for the Hugging Face text-to-image API.</p>
+    <p>Simple HTML demo using a Netlify function proxy for the Hugging Face text-to-image API.</p>
   </header>
 
   <main>
@@ -115,7 +115,7 @@
       <pre id="requestPreview"></pre>
 
       <p class="hint">
-        Note: This demo now calls a local `/api/generate` endpoint. Set `HF_TOKEN` in Vercel project environment variables.
+        Note: This demo calls a Netlify function via `/api/generate`. Set `HF_TOKEN` in Netlify environment variables.
       </p>
     </section>
   </main>
@@ -236,11 +236,11 @@ ${JSON.stringify({ model: values.model, ...payload }, null, 2)}`;
         setStatus(
           "Generation failed:\n" + error.message +
           "\n\nCommon fixes:\n" +
-          "1. Set HF_TOKEN in Vercel project settings.\n" +
+          "1. Set HF_TOKEN in Netlify site environment variables.\n" +
           "2. Try 512x512 first.\n" +
           "3. Try ByteDance/Hyper-SD for faster testing.\n" +
           "4. Some models/providers may need billing or credits enabled.\n" +
-          "5. Confirm the API route deployed successfully.",
+          "5. Confirm the Netlify function deployed successfully.",
           true
         );
       } finally {
