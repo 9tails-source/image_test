@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const endpoint = `https://api-inference.huggingface.co/models/${encodeURIComponent(model)}`;
+  const endpoint = `https://api-inference.huggingface.co/models/${model}`;
 
   try {
     const response = await fetch(endpoint, {
