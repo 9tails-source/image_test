@@ -1,0 +1,7 @@
+{
+  "name": "image-test",
+  "private": true,
+  "dependencies": {
+    "@huggingface/inference": "^3.21.0"
+  }
+}

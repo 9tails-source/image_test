@@ -1,3 +1,5 @@
+const { InferenceClient } = require("@huggingface/inference");
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -11,7 +13,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const { model, inputs, parameters, options } = req.body || {};
+  const { model, inputs, parameters } = req.body || {};
 
   if (!model || !inputs) {
     return res.status(400).json({
@@ -19,42 +21,24 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const endpoint = `https://api-inference.huggingface.co/models/${model}`;
-
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs,
-        parameters: parameters || {},
-        options: options || { wait_for_model: true }
-      })
+    const client = new InferenceClient(token);
+    const imageBlob = await client.textToImage({
+      model,
+      inputs,
+      ...(parameters || {})
     });
+    const buffer = Buffer.from(await imageBlob.arrayBuffer());
 
-    const contentType = response.headers.get("content-type") || "application/octet-stream";
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return res.status(response.status).json({
-        error: "Hugging Face request failed.",
-        details: errorText
-      });
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Type", imageBlob.type || "image/png");
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).send(buffer);
   } catch (error) {
-    return res.status(500).json({
-      error: "Proxy request failed.",
-      details: error.message
+    const status = error?.status || error?.response?.status || 500;
+    const details = error?.message || "Unknown inference error.";
+    return res.status(status).json({
+      error: "Hugging Face request failed.",
+      details
     });
   }
 };
